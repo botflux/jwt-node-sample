@@ -15,24 +15,21 @@ const getUsers = () => {
  * 
  * @param {{}} credentials Credentials
  */
-const checkCredentials = async ({ username = '', password = '' }) => {
-    const users = await getUsers()
-    return (users.find(u => u.username === username && u.password === password) !== undefined)
-}
-
-/**
- * Returns a user from his username
- * 
- * @param {String} username Username
- */
-const getUser = async (username = '') => {
-    const users = await getUsers()
-
-    return users.find(u => u.username === username)
+const checkCredentials = ({ username = '', password = '' }) => {
+    return new Promise((res, rej) => {
+        getUsers() 
+        .then(users => {
+            const user = users.find(u => u.username === username && u.password === password)
+            if (!user) {
+                rej('Bad credentials')
+            } else {
+                res(user)
+            }
+        })
+    }) 
 }
 
 module.exports = {
     getUsers,
     checkCredentials,
-    getUser
 }

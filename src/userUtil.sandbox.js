@@ -1,14 +1,9 @@
 const userUtils = require('./userUtils')
 
-userUtils.checkCredentials({
-    username: 'John',
-    password: 'j0hn'
-})
-.then(res => {
-    console.log('result', res)
-})
-
-userUtils.getUser('John')
+userUtils.checkCredentials({ username: 'John', password: 'j0hn' })
     .then(user => {
-        console.log(user)
+        console.log('User', user)
+    }, reason => {
+        console.log('Rejected', reason)
     })
+    .catch(error => console.log('Error', error))

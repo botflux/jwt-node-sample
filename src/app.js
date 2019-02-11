@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.send('Hello world')
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', (req, res) => {
     
     const { username, password } = req.body
 
@@ -33,24 +33,17 @@ app.post('/login', async (req, res) => {
             .send('Please pass data for login')
     }
 
-    const validCredentials = userUtils.checkCredentials({
-        username,
-        password
-    }).catch(e => {
-        return res.sendStatus(500).send('Something went wrong')
-    })
-
-    if (!validCredentials) return res.sendStatus(403).send('Bad credentials.')
-
-    userUtils.getUser(username)
+    userUtils.checkCredentials({ username, password })
         .then(user => {
             const token = jwt.sign(user, 'APPLICATION_SECRET_PASSWORD')
             return res.send(token)
+        }, reason => {
+            console.log('Rejected', reason)
+            return res.send(reason)
         })
         .catch(e => {
-            return res
-                .sendStatus(500)
-                .send(e)
+            console.log('Error', e)
+            return res.send(e)
         })
 })
 
