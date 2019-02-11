@@ -4,20 +4,14 @@ const app = express()
 const jwt = require('jsonwebtoken')
 const userUtils = require('./userUtils')
 const jwtCheckMiddleware = require('./jwt-check-middleware')
+const userDataMiddleware = require('./user-data-middleware')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-const userDataMiddleware = (req, res, next) => {
-    const { username, password } = req.body
-
-    if (username !== undefined && password !== undefined) {
-        req.areUserData = true
-    }
-
-    next()
-}
-
+/**
+ * Middleware that check if the credentials are sent
+ */
 app.use(userDataMiddleware)
 
 app.get('/', (req, res) => {
