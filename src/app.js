@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const jwt = require('jsonwebtoken')
 const userUtils = require('./userUtils')
+const jwtCheckMiddleware = require('./jwt-check-middleware')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -48,16 +49,7 @@ app.post('/login', (req, res) => {
 })
 
 app.route('/admin')
-    .all((req, res, next) => {
-        const token = req.get('TOKEN') || ''
-
-        if (!(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(token) && jwt.verify(token, 'APPLICATION_SECRET_PASSWORD'))) {
-            return res
-                .redirect('/')
-        } else {
-            next()
-        }
-    })
+    .all(jwtCheckMiddleware)
     .get((req, res) => {
         return res.send(`
             <html>
