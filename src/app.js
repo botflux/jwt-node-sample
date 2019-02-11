@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const jwt = require('jsonwebtoken')
-const fs = require('fs')
+const userUtils = require('./userUtils')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -23,35 +23,35 @@ app.get('/', (req, res) => {
     res.send('Hello world')
 })
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     
     const { username, password } = req.body
-    /*
-    if (username === undefined || password === undefined) {
-        return res.send('You need to pass all data.')
-    }*/
 
     if (!req.areUserData) {
-        return res.send('You need to pass all data.')
+        return res
+            .sendStatus(404)
+            .send('Please pass data for login')
     }
 
-    fs.readFile('db.json', 'utf8', (e, data) => {
-        if (e) throw e
-
-        const { users } = JSON.parse(data)
-        console.log(users)
-        
-        const found = users.find(u => u.username === username && u.password === password)
-
-        if (!found) {
-            return res
-                .sendStatus(404)
-                .send('User not found.')
-        } else {
-            const token = jwt.sign(found, 'APPLICATION_SECRET_PASSWORD')
-            return res.send(token)
-        }
+    const validCredentials = userUtils.checkCredentials({
+        username,
+        password
+    }).catch(e => {
+        return res.sendStatus(500).send('Something went wrong')
     })
+
+    if (!validCredentials) return res.sendStatus(403).send('Bad credentials.')
+
+    userUtils.getUser(username)
+        .then(user => {
+            const token = jwt.sign(user, 'APPLICATION_SECRET_PASSWORD')
+            return res.send(token)
+        })
+        .catch(e => {
+            return res
+                .sendStatus(500)
+                .send(e)
+        })
 })
 
 module.exports = app
