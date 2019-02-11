@@ -47,4 +47,28 @@ app.post('/login', (req, res) => {
         })
 })
 
+app.route('/admin')
+    .all((req, res, next) => {
+        const token = req.get('TOKEN') || ''
+
+        if (!(/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/.test(token) && jwt.verify(token, 'APPLICATION_SECRET_PASSWORD'))) {
+            return res
+                .redirect('/')
+        } else {
+            next()
+        }
+    })
+    .get((req, res) => {
+        return res.send(`
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                </head>
+                <body>
+                    <h1>Admin area</h1>
+                </body>
+            </html>
+        `)
+    })
+
 module.exports = app
