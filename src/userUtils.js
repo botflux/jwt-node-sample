@@ -11,7 +11,8 @@ const getUsers = () => {
 }
 
 /**
- * Check if crendentails are valid
+ * Check if crendentails are valid.
+ * If they are then the user will be returned otherwise the promise will be rejected.
  * 
  * @param {{}} credentials Credentials
  */
